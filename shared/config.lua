@@ -2,7 +2,6 @@
 ---@field Restaurants Restaurant[]
 Config = {}
 
-
 Config.Restaurants = {
     {
         name = "Lucky Plucker Ghetto",

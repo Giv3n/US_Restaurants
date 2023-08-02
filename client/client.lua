@@ -4,6 +4,7 @@
 local ESXClient = exports['es_extended']:getSharedObject()
 
 local AddTextComponentString = AddTextComponentString
+local Await = Citizen.Await
 local CreateThread = Citizen.CreateThread
 local DrawMarker = DrawMarker
 local DrawSprite = DrawSprite
@@ -20,11 +21,15 @@ local SetTextEntry = SetTextEntry
 local SetTextScale = SetTextScale
 local TriggerServerEvent = TriggerServerEvent
 local Wait = Wait
+
 local ceil = math.ceil
+local collectgarbage = collectgarbage
 local insert = table.insert
 local ipairs = ipairs
 local math = math
 local pairs = pairs
+local promise = promise
+local type = type
 
 local Config = Config
 
@@ -155,7 +160,7 @@ local function prepareFood(restaurantId, itemId, time)
                 ESXClient.TriggerServerCallback('US_Restaurant:giveItem', function(result)
                     p:resolve(result)
                 end, restaurantId, itemId)
-                local result = Citizen.Await(p)
+                local result = Await(p)
                 if result then
                     -- hide the marker, item has been taken
                     break
