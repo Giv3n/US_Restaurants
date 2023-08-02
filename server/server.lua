@@ -3,6 +3,12 @@
 
 local ESXServer <const> = exports['es_extended']:getSharedObject()
 
+local RegisterNetEvent = RegisterNetEvent
+local TriggerClientEvent = TriggerClientEvent
+local type = type
+
+local Config = Config
+
 ---@type table<Player, table<string, number>
 local pendingTakeItem <const> = {}
 
