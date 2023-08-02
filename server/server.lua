@@ -1,20 +1,10 @@
 --- For more support join this discord where i can help you with you're issues and accept new idea's for it!
 --- https://discord.gg/PwZuYuFUqC
 
-local ESXServer = exports['es_extended']:getSharedObject()
-
-
----@type table<string, boolean>
-local allowedItems = {}
-
-for _,v in pairs(Config.Restaurants) do
-    for _, menuOption in ipairs(v.menu) do
-        allowedItems[menuOption.item] = true
-    end
-end
+local ESXServer <const> = exports['es_extended']:getSharedObject()
 
 ---@type table<Player, table<string, number>
-local pendingTakeItem = {}
+local pendingTakeItem <const> = {}
 
 ---@param restaurantId number
 ---@param itemId number
@@ -50,10 +40,11 @@ local function takeMoney(restaurantId, itemId)
 
 end
 
+---@param source Player
+---@param cb fun(success: boolean): void
 ---@param restaurantId number
 ---@param itemId number
----@param cb fun(success: boolean): void
-local function giveItem(restaurantId, itemId, cb)
+local function giveItem(source, cb, restaurantId, itemId)
     local xPlayer <const> = ESXServer.GetPlayerFromId(source)
 
     if Config.Restaurants[restaurantId] == nil then

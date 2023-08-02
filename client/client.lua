@@ -3,33 +3,35 @@
 
 local ESXClient = exports['es_extended']:getSharedObject()
 
----@type number
-local currentRestaurantId
-local LastPickupFood
-local GetEntityCoords = GetEntityCoords
-local PlayerPedId = PlayerPedId
-local IsControlJustReleased = IsControlJustReleased
-local DrawMarker = DrawMarker
-local Config = Config
-local Locales = Locales
-local Wait = Wait
-local CreateThread = Citizen.CreateThread
-local TriggerServerEvent = TriggerServerEvent
-local RegisterNetEvent = RegisterNetEvent
-local GetScreenCoordFromWorldCoord = GetScreenCoordFromWorldCoord
-local DrawSprite = DrawSprite
-local SetTextCentre = SetTextCentre
-local SetTextScale = SetTextScale
-local SetTextEntry = SetTextEntry
 local AddTextComponentString = AddTextComponentString
+local CreateThread = Citizen.CreateThread
+local DrawMarker = DrawMarker
+local DrawSprite = DrawSprite
 local DrawText = DrawText
+local GetEntityCoords = GetEntityCoords
+local GetScreenCoordFromWorldCoord = GetScreenCoordFromWorldCoord
+local IsControlJustReleased = IsControlJustReleased
+local Locales = Locales
+local PlayerPedId = PlayerPedId
+local RegisterNetEvent = RegisterNetEvent
 local RequestStreamedTextureDict = RequestStreamedTextureDict
-local table = table
-local ipairs = ipairs
-local pairs = pairs
-local math = math
+local SetTextCentre = SetTextCentre
+local SetTextEntry = SetTextEntry
+local SetTextScale = SetTextScale
+local TriggerServerEvent = TriggerServerEvent
+local Wait = Wait
 local ceil = math.ceil
 local insert = table.insert
+local ipairs = ipairs
+local math = math
+local pairs = pairs
+
+local Config = Config
+
+---@type number
+local currentRestaurantId
+---@type Vector3
+local lastPickupFood
 local icon_scale = 1.0
 local text_scale = 0.25
 
@@ -113,7 +115,7 @@ CreateThread(function()
                 if distance <= 1.0 then
                     r, g, b = 64, 64, 64
                     currentRestaurantId = restaurantId
-                    LastPickupFood = pickupCoords
+                    lastPickupFood = pickupCoords
                     if IsControlJustReleased(0, 38) then
                         openMenu()
                     end
@@ -142,10 +144,10 @@ local function prepareFood(restaurantId, itemId, time)
         local meters = 0
         while true do
             pCoords = GetEntityCoords(PlayerPedId())
-            dist = #(LastPickupFood - pCoords)
+            dist = #(lastPickupFood - pCoords)
             meters = ceil(dist * 1)
 
-            drawPickupMarker(LastPickupFood, Locales['Main']['TakeOrder'], meters)
+            drawPickupMarker(lastPickupFood, Locales['Main']['TakeOrder'], meters)
 
             if dist <= 1.0 and IsControlJustReleased(0, 38) then
                 ---@type promise<boolean>
