@@ -1,36 +1,90 @@
 --- For more support join this discord where i can help you with you're issues and accept new idea's for it!
 --- https://discord.gg/PwZuYuFUqC
 
-ESX = exports['es_extended']:getSharedObject()
+local ESXServer = exports['es_extended']:getSharedObject()
 
 
-RegisterNetEvent('US_Restaurant:TakeMoney')
-AddEventHandler('US_Restaurant:TakeMoney', function(label, value, price, time)
-   local xPlayer = ESX.GetPlayerFromId(source)
+---@type table<string, boolean>
+local allowedItems = {}
 
-   local pmoney = xPlayer.getMoney()
-   local rest = price - pmoney
+for _,v in pairs(Config.Restaurants) do
+    for _, menuOption in ipairs(v.menu) do
+        allowedItems[menuOption.item] = true
+    end
+end
 
-   
-    if pmoney >= price then
+---@type table<Player, table<string, number>
+local pendingTakeItem = {}
+
+---@param restaurantId number
+---@param itemId number
+local function takeMoney(restaurantId, itemId)
+    local _source <const> = source
+    local xPlayer <const> = ESXServer.GetPlayerFromId(source)
+
+    local item <const> = Config.Restaurants[restaurantId].menu[itemId]
+    local price <const> = item.price
+    local itemName <const> = item.item
+    local time <const> = item.waitTime
+
+    local money <const> = xPlayer.getMoney()
+
+    if money >= price then
         xPlayer.removeMoney(price)
         TriggerClientEvent('ox_lib:notify', source, { description = Locales['Main']['OrderPreparing'], type = 'success' })
-        TriggerClientEvent("US_Restaurant:PrepareFood", source, value, time)
+
+        if pendingTakeItem[_source] == nil then
+            pendingTakeItem[_source] = {}
+        end
+
+        if type(pendingTakeItem[_source][itemName]) ~= 'number' then
+            pendingTakeItem[_source][itemName] = 1
+        else
+            pendingTakeItem[_source][itemName] = pendingTakeItem[_source][itemName] + 1
+        end
+        TriggerClientEvent("US_Restaurant:prepareFood", source, restaurantId, itemId, time)
     else
+        local rest <const> = price - money
         TriggerClientEvent('ox_lib:notify', source, { description = Locales['Main']['MissingMoney']:format(rest), type = 'success' })
     end
 
-end)
+end
 
+---@param restaurantId number
+---@param itemId number
+---@param cb fun(success: boolean): void
+local function giveItem(restaurantId, itemId, cb)
+    local xPlayer <const> = ESXServer.GetPlayerFromId(source)
 
-RegisterNetEvent('US_Restaurant:GiveItem')
-AddEventHandler('US_Restaurant:GiveItem', function(value)
-    local xPlayer = ESX.GetPlayerFromId(source)
-
-
-    if xPlayer.canCarryItem(value, 1) then
-        xPlayer.addInventoryItem(value, 1)
-    else
-         TriggerClientEvent('ox_lib:notify', source, { description = Locales['Main']['NoSpaceInInventory'], type = 'error' })
+    if Config.Restaurants[restaurantId] == nil then
+        return
     end
-end)
+    if Config.Restaurants[restaurantId].menu[itemId] == nil then
+        return
+    end
+
+    local item <const> = Config.Restaurants[restaurantId].menu[itemId]
+    local itemName <const> = item.item
+
+    if pendingTakeItem[source] == nil then
+        return
+    end
+    if pendingTakeItem[source][itemName] == nil then
+        return
+    end
+    if pendingTakeItem[source][itemName] <= 0 then
+        return
+    end
+
+    if xPlayer.canCarryItem(itemName, 1) then
+        pendingTakeItem[source][itemName] = pendingTakeItem[source][itemName] - 1
+        xPlayer.addInventoryItem(itemName, 1)
+        cb(true)
+    else
+        TriggerClientEvent('ox_lib:notify', source, { description = Locales['Main']['NoSpaceInInventory'], type = 'error' })
+        cb(false)
+    end
+end
+
+RegisterNetEvent('US_Restaurant:takeMoney', takeMoney)
+ESXServer.RegisterServerCallback('US_Restaurant:giveItem', giveItem)
