@@ -20,7 +20,6 @@ AddEventHandler('US_Restaurant:TakeMoney', function(label, value, price, time)
         TriggerClientEvent('ox_lib:notify', source, { description = Locales['Main']['MissingMoney']:format(rest), type = 'success' })
     end
 
-    print(price)
 end)
 
 
@@ -32,6 +31,6 @@ AddEventHandler('US_Restaurant:GiveItem', function(value)
     if xPlayer.canCarryItem(value, 1) then
         xPlayer.addInventoryItem(value, 1)
     else
-        print("No space in inventory.")
+         TriggerClientEvent('ox_lib:notify', source, { description = Locales['Main']['NoSpaceInInventory'], type = 'error' })
     end
 end)
