@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/US_Restaurants.iml" filepath="$PROJECT_DIR$/.idea/US_Restaurants.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../fivem-lua-docs/.idea/fivem-lua-docs.iml" filepath="$PROJECT_DIR$/../fivem-lua-docs/.idea/fivem-lua-docs.iml" />
+    </modules>
+  </component>
+</project>
